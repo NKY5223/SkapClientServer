@@ -1,0 +1,21 @@
+{
+  "name": "skapclientserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NKY5223/SkapClientServer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NKY5223/SkapClientServer/issues"
+  },
+  "homepage": "https://github.com/NKY5223/SkapClientServer#readme",
+  "dependencies": {
+    "dotenv": "^8.5.1",
+    "express": "^4.17.1",
+    "ws": "^7.4.5"
+  }
+}
