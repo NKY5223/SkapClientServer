@@ -52,7 +52,6 @@ WSServer.on("connection", (ws, req) => {
             const clientArr = [];
             for (let client of clients) {
                 clientArr.push({
-                    ip: client.ip,
                     username: client.username
                 });
             }
@@ -66,9 +65,9 @@ WSServer.on("connection", (ws, req) => {
         }
     } else {
         // User
-        const client = new Client(ws, req.socket.remoteAddress);
+        const client = new Client(ws);
         const index = clients.push(client) - 1;
-        broadcastAdmins(msgpack.encode({ e: "clientJoined", index, ip: client.ip }));
+        broadcastAdmins(msgpack.encode({ e: "clientJoined", index }));
 
         // Update
         ws.addEventListener("message", e => {
@@ -93,12 +92,10 @@ WSServer.on("connection", (ws, req) => {
 class Client {
     /** 
      * @param {WebSocket} ws 
-     * @param {string} ip
      */
-    constructor(ws, ip) {
+    constructor(ws) {
         this.username = "[UNKNOWN]";
         this.ws = ws;
-        this.ip = ip;
     }
 }
 

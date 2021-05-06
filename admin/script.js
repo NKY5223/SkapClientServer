@@ -14,41 +14,37 @@ ws.addEventListener("message", e => {
             log("Admin Left");
             break;
         case "clientJoined":
-            createClient("[UNKNOWN]", msg.ip);
+            createClient("[UNKNOWN]");
 
-            log(`Client ${msg.ip} joined`);
+            log(`Client joined`);
             break;
         case "usernameUpdate":
             const client = clients[msg.index];
             client.usernameEl.innerHTML = client.username = msg.username;
 
-            log(`Client ${client.ip} logged in as ${msg.username}`);
+            log(`Client ${msg.index} logged in as ${msg.username}`);
             break;
         case "clients":
             for (let client of msg.clients) {
-                createClient(client.username, client.ip);
+                createClient(client.username);
             }
             log(`${msg.clients.length} client(s) loaded`)
             break;
     }
 });
 
-function createClient(username = "[UNKNOWN]", ip = "[UNKNOWN]") {
+function createClient(username = "[UNKNOWN]") {
     const row = document.createElement("tr");
     const usernameEl = document.createElement("td");
-    const ipEl = document.createElement("td");
 
     usernameEl.innerHTML = username;
-    ipEl.innerHTML = ip;
-
     row.appendChild(usernameEl);
     row.appendChild(ipEl);
     userTable.appendChild(row);
 
     clients.push({
         usernameEl: usernameEl,
-        username,
-        ip
+        username
     });
 }
 

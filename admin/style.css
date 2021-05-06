@@ -39,4 +39,7 @@ tr:not(:last-child) {
 #log {
     position: absolute;
     bottom: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow: auto;
 }
