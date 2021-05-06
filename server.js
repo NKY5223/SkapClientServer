@@ -44,8 +44,8 @@ WSServer.on("connection", (ws, req) => {
 
     if (isAdmin) {
         // Admin
-        const index = admins.push(ws) - 1;
-        broadcastAdmins(msgpack.encode({ e: "adminJoined", index }));
+        admins.push(ws);
+        broadcastAdmins(msgpack.encode({ e: "adminJoined" }));
 
         // "History"
         if (clients.length) {
@@ -59,15 +59,15 @@ WSServer.on("connection", (ws, req) => {
 
             // Bye
             ws.addEventListener("close", () => {
-                broadcastAdmins(msgpack.encode({ e: "adminLeft", index }));
-                admins.splice(index, 1);
+                broadcastAdmins(msgpack.encode({ e: "adminLeft" }));
+                admins.splice(admins.indexOf(ws), 1);
             });
         }
     } else {
         // User
         const client = new Client(ws);
-        const index = clients.push(client) - 1;
-        broadcastAdmins(msgpack.encode({ e: "clientJoined", index }));
+        clients.push(client);
+        broadcastAdmins(msgpack.encode({ e: "clientJoined" }));
 
         // Update
         ws.addEventListener("message", e => {
@@ -75,7 +75,7 @@ WSServer.on("connection", (ws, req) => {
             switch (msg.e) {
                 case "username":
                     client.username = msg.username;
-                    broadcastAdmins(msgpack.encode({ e: "usernameUpdate", username: msg.username, index }));
+                    broadcastAdmins(msgpack.encode({ e: "usernameUpdate", username: msg.username, index: clients.indexOf(client) }));
                     break;
             }
         });
