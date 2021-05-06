@@ -1,1 +1,0 @@
-const ws = new WebSocket(location.href.replace(/^http/, "ws"));
