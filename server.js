@@ -84,16 +84,16 @@ WSServer.on("connection", (ws, req) => {
                     }));
                     break;
                 case "msg":
-                    broadcastClients({
+                    broadcastClients(msgpack.encode({
                         e: "msg",
                         author: client.username,
                         message: msg.message
-                    });
-                    broadcastAdmins({
+                    }));
+                    broadcastAdmins(msgpack.encode({
                         e: "msg",
                         author: client.username,
                         message: msg.message
-                    });
+                    }));
                     break;
             }
         }); 
@@ -104,7 +104,7 @@ WSServer.on("connection", (ws, req) => {
                 e: "clientLeft",
                 index: clients.indexOf(client)
             }));
-            clients.splice(clients.indexOf(client), 1);
+            clients.splice(clients.indexOf(client), 1); 
         });
     }
 });
@@ -140,7 +140,7 @@ function broadcastAdmins(message) {
     }
 }
 function broadcastClients(message) {
-    for (let ws of clients) {
-        ws.send(message);
+    for (let client of clients) {
+        client.ws.send(message);
     }
 }

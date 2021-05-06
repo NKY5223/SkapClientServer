@@ -44,11 +44,12 @@ ws.addEventListener("message", e => {
             for (let i in msg.clients) {
                 createClient(i, msg.clients[i].username);
             }
-            log(`[LOAD] ${msg.clients.length}`)
+            log(`[LOAD] ${msg.clients.length} client(s)`)
             break;
         }
         case "msg": {
-            log(`[/msg] ${msg.author}: `)
+            log(`[/msg] ${msg.author}: ${msg.message}`);
+            break;
         }
     }
 });
@@ -75,6 +76,10 @@ function createClient(index = 0, username = "[UNKNOWN]") {
 
 const logDiv = document.getElementById("log");
 function log(str = "") {
-    logDiv.append(str);
-    logDiv.appendChild(document.createElement("br"));
+    const p = document.createElement("p");
+    const timestamp = document.createElement("span");
+
+    p.innerHTML = str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    p.appendChild(timestamp);
+    logDiv.appendChild(p);
 }
