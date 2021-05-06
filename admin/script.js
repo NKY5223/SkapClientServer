@@ -14,7 +14,7 @@ ws.addEventListener("message", e => {
             log("Admin Left");
             break;
         case "clientJoined":
-            createClient("[UNKNOWN]");
+            createClient(msg.index, "[UNKNOWN]");
 
             log(`Client joined`);
             break;
@@ -33,13 +33,16 @@ ws.addEventListener("message", e => {
     }
 });
 
-function createClient(username = "[UNKNOWN]") {
+function createClient(index = 0, username = "[UNKNOWN]") {
     const row = document.createElement("tr");
     const usernameEl = document.createElement("td");
+    const indexEl = document.createElement("td");
 
     usernameEl.innerHTML = username;
+    indexEl.innerHTML = index;
+
     row.appendChild(usernameEl);
-    row.appendChild(ipEl);
+    row.appendChild(indexEl);
     userTable.appendChild(row);
 
     clients.push({
