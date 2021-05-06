@@ -9,7 +9,7 @@ const fs = require("fs");
 /** @type {WebSocket | null} */
 let adminWS = null;
 
-const key = (function generate(len) {
+const key = process.env.KEY ?? (function generate(len) {
     const chars = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
     let str = "";
     for (let i = 0; i < len; i++) {
@@ -17,11 +17,13 @@ const key = (function generate(len) {
     }
     return str;
 })(32);
+
+
 console.log("Key:", key);
 
 app.get("/", (req, res) => {
     if (adminWS === null) {
-        if (req.hostname === "localhost" || req.query.key && req.query.key === key) {
+        if (req.query.key && req.query.key === key) {
             fs.readFile("view/index.html", "utf8", (err, data) => {
                 if (err) {
                     res.send(err.toString());
@@ -45,7 +47,8 @@ server.on("listening", () => {
 });
 
 WSServer.on("connection", (ws, req) => {
-    const isAdmin = new URL(req.url).searchParams.get("key") === key;
+    console.log(req.url);
+    const isAdmin = new URLSearchParams(req.url).get("key") === key;
 
     if (isAdmin) {
         // Admin
