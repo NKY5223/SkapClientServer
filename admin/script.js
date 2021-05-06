@@ -48,7 +48,6 @@ ws.addEventListener("message", e => {
             break;
         }
         case "msg": {
-            console.log("bruh")
             log(`[/msg] ${msg.author}: ${msg.message}`);
             break;
         }
@@ -79,8 +78,11 @@ const logDiv = document.getElementById("log");
 function log(str = "") {
     const p = document.createElement("p");
     const timestamp = document.createElement("span");
+    const time = new Date();
 
     p.innerHTML = str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    timestamp.innerHTML = `${time.getHours().toFixed(2)}:${time.getMinutes().toFixed(2)}.${time.getSeconds().toFixed(2)}`;
+
     p.appendChild(timestamp);
     logDiv.appendChild(p);
 }
