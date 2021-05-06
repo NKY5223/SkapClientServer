@@ -48,6 +48,7 @@ ws.addEventListener("message", e => {
             break;
         }
         case "msg": {
+            console.log("bruh")
             log(`[/msg] ${msg.author}: ${msg.message}`);
             break;
         }

@@ -46,3 +46,6 @@ tr:not(:last-child) {
 #log::-webkit-scrollbar {
     opacity: 0.1;
 }
+#log p {
+    margin: 0;
+}
