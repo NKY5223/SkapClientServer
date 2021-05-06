@@ -40,6 +40,9 @@ tr:not(:last-child) {
     position: absolute;
     bottom: 0;
     width: 100%;
-    max-height: 300px;
+    max-height: 500px;
     overflow: auto;
+}
+#log::-webkit-scrollbar {
+    opacity: 0.1;
 }

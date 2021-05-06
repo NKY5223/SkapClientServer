@@ -2,11 +2,11 @@ const ws = new WebSocket(location.href.replace(/^http/, "ws"));
 ws.binaryType = "arraybuffer";
 
 const userTable = document.getElementById("users");
+/** @type {{el: HTMLTableRowElement, usernameEl: HTMLTableDataCellElement, indexEl: HTMLTableDataCellElement, username: string}[]} */
 const clients = [];
 
 ws.addEventListener("message", e => {
     const msg = msgpack.decode(new Uint8Array(e.data));
-    console.log(msg);
 
     switch (msg.e) {
         case "adminJoined":
@@ -14,6 +14,7 @@ ws.addEventListener("message", e => {
             break;
         case "adminLeft":
             log("Admin Left");
+            console.log("e");
             break;
         case "clientJoined":
             createClient(msg.index, "[UNKNOWN]");
@@ -24,7 +25,11 @@ ws.addEventListener("message", e => {
             const client = clients.splice(msg.index, 1)[0];
             client.el.remove();
 
-            log(`Client ${msg.index} left`);
+            for (let i in clients) {
+                clients[i].indexEl.innerHTML = i;
+            }
+
+            log(`Client ${msg.index} ("${client.username}") left`);
             break;
         }
         case "usernameUpdate": {
@@ -57,13 +62,12 @@ function createClient(index = 0, username = "[UNKNOWN]") {
     row.appendChild(usernameEl);
     userTable.appendChild(row);
 
-    console.log("e");
     clients.push({
         el: row,
         usernameEl: usernameEl,
-        username
+        username,
+        indexEl
     });
-    console.log(clients);
 }
 
 const logDiv = document.getElementById("log");

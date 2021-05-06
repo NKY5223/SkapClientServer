@@ -43,8 +43,8 @@ WSServer.on("connection", (ws, req) => {
     if (isAdmin) {
         // Admin
         admins.push(ws);
-        broadcastAdmins(msgpack.encode({ 
-            e: "adminJoined" 
+        broadcastAdmins(msgpack.encode({
+            e: "adminJoined"
         }));
 
         // "History"
@@ -59,8 +59,8 @@ WSServer.on("connection", (ws, req) => {
 
             // Bye
             ws.addEventListener("close", () => {
-                broadcastAdmins(msgpack.encode({ 
-                    e: "adminLeft" 
+                broadcastAdmins(msgpack.encode({
+                    e: "adminLeft"
                 }));
                 admins.splice(admins.indexOf(ws), 1);
             });
@@ -77,20 +77,27 @@ WSServer.on("connection", (ws, req) => {
             switch (msg.e) {
                 case "username":
                     client.username = msg.username;
-                    broadcastAdmins(msgpack.encode({ 
-                        e: "usernameUpdate", 
-                        username: msg.username, 
-                        index: clients.indexOf(client) 
+                    broadcastAdmins(msgpack.encode({
+                        e: "usernameUpdate",
+                        username: msg.username,
+                        index: clients.indexOf(client)
                     }));
                     break;
+                case "msg":
+                    broadcastClients({
+                        e: "msg",
+                        author: client.username,
+                        message: msg.message
+                    });
+                    break;
             }
-        });
+        }); 
 
         // Bye
         ws.addEventListener("close", () => {
-            broadcastAdmins(msgpack.encode({ 
-                e: "clientLeft", 
-                index: clients.indexOf(client) 
+            broadcastAdmins(msgpack.encode({
+                e: "clientLeft",
+                index: clients.indexOf(client)
             }));
             clients.splice(clients.indexOf(client), 1);
         });
@@ -124,6 +131,11 @@ function errorPage(message = "Error 404<br>Error Message not found") {
 
 function broadcastAdmins(message) {
     for (let ws of admins) {
+        ws.send(message);
+    }
+}
+function broadcastClients(message) {
+    for (let ws of clients) {
         ws.send(message);
     }
 }
