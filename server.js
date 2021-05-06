@@ -89,6 +89,11 @@ WSServer.on("connection", (ws, req) => {
                         author: client.username,
                         message: msg.message
                     });
+                    broadcastAdmins({
+                        e: "msg",
+                        author: client.username,
+                        message: msg.message
+                    });
                     break;
             }
         }); 

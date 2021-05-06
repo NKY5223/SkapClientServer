@@ -10,16 +10,16 @@ ws.addEventListener("message", e => {
 
     switch (msg.e) {
         case "adminJoined":
-            log("Admin Joined");
+            log("[JOIN] Admin");
             break;
         case "adminLeft":
-            log("Admin Left");
+            log("[LEAVE] Admin");
             console.log("e");
             break;
         case "clientJoined":
             createClient(msg.index, "[UNKNOWN]");
 
-            log(`Client joined`);
+            log(`[JOIN] Client`);
             break;
         case "clientLeft": {
             const client = clients.splice(msg.index, 1)[0];
@@ -29,7 +29,7 @@ ws.addEventListener("message", e => {
                 clients[i].indexEl.innerHTML = i;
             }
 
-            log(`Client ${msg.index} ("${client.username}") left`);
+            log(`[LEAVE] ${msg.index} ("${client.username}")`);
             break;
         }
         case "usernameUpdate": {
@@ -37,15 +37,18 @@ ws.addEventListener("message", e => {
 
             client.usernameEl.innerHTML = client.username = msg.username;
 
-            log(`Client ${msg.index} logged in as ${msg.username}`);
+            log(`[LOGIN] ${msg.index} as ${msg.username}`);
             break;
         }
         case "clients": {
             for (let i in msg.clients) {
                 createClient(i, msg.clients[i].username);
             }
-            log(`${msg.clients.length} client(s) loaded`)
+            log(`[LOAD] ${msg.clients.length}`)
             break;
+        }
+        case "msg": {
+            log(`[/msg] ${msg.author}: `)
         }
     }
 });
