@@ -45,7 +45,9 @@ WSServer.on("connection", (ws, req) => {
     if (isAdmin) {
         // Admin
         admins.push(ws);
-        broadcastAdmins(msgpack.encode({ e: "adminJoined" }));
+        broadcastAdmins(msgpack.encode({ 
+            e: "adminJoined" 
+        }));
 
         // "History"
         if (clients.length) {
@@ -59,7 +61,9 @@ WSServer.on("connection", (ws, req) => {
 
             // Bye
             ws.addEventListener("close", () => {
-                broadcastAdmins(msgpack.encode({ e: "adminLeft" }));
+                broadcastAdmins(msgpack.encode({ 
+                    e: "adminLeft" 
+                }));
                 admins.splice(admins.indexOf(ws), 1);
             });
         }
@@ -67,7 +71,7 @@ WSServer.on("connection", (ws, req) => {
         // User
         const client = new Client(ws);
         clients.push(client);
-        broadcastAdmins(msgpack.encode({ e: "clientJoined" }));
+        broadcastAdmins(msgpack.encode({ e: "clientJoined", index: clients.indexOf(client) }));
 
         // Update
         ws.addEventListener("message", e => {
@@ -75,15 +79,22 @@ WSServer.on("connection", (ws, req) => {
             switch (msg.e) {
                 case "username":
                     client.username = msg.username;
-                    broadcastAdmins(msgpack.encode({ e: "usernameUpdate", username: msg.username, index: clients.indexOf(client) }));
+                    broadcastAdmins(msgpack.encode({ 
+                        e: "usernameUpdate", 
+                        username: msg.username, 
+                        index: clients.indexOf(client) 
+                    }));
                     break;
             }
         });
 
         // Bye
         ws.addEventListener("close", () => {
-            clients.splice(index, 1);
-            broadcastAdmins(msgpack.encode({ e: "clientLeft", index }));
+            broadcastAdmins(msgpack.encode({ 
+                e: "clientLeft", 
+                index: clients.indexOf(client) 
+            }));
+            clients.splice(clients.indexOf(client), 1);
         });
     }
 });

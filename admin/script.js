@@ -19,23 +19,29 @@ ws.addEventListener("message", e => {
             createClient(msg.index, "[UNKNOWN]");
 
             log(`Client joined`);
-        case "clientLeft":
-            const client = clients.splice(msg.index, 1);
+            break;
+        case "clientLeft": {
+            const client = clients.splice(msg.index, 1)[0];
+            client.el.remove();
 
             log(`Client ${msg.index} left`);
             break;
-        case "usernameUpdate":
+        }
+        case "usernameUpdate": {
             const client = clients[msg.index];
+
             client.usernameEl.innerHTML = client.username = msg.username;
 
             log(`Client ${msg.index} logged in as ${msg.username}`);
             break;
-        case "clients":
-            for (let client of msg.clients) {
-                createClient(client.username);
+        }
+        case "clients": {
+            for (let i in msg.clients) {
+                createClient(i, msg.clients[i].username);
             }
             log(`${msg.clients.length} client(s) loaded`)
             break;
+        }
     }
 });
 
@@ -51,11 +57,13 @@ function createClient(index = 0, username = "[UNKNOWN]") {
     row.appendChild(usernameEl);
     userTable.appendChild(row);
 
+    console.log("e");
     clients.push({
         el: row,
         usernameEl: usernameEl,
         username
     });
+    console.log(clients);
 }
 
 const logDiv = document.getElementById("log");
