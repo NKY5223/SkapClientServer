@@ -9,8 +9,6 @@ const msgpack = require("msgpack-lite");
 
 const key = process.env.KEY;
 
-console.log("Key:", key);
-
 app.get("/", (req, res) => {
     if (req.query.key && req.query.key === key) {
         fs.readFile("admin/index.html", "utf8", (err, data) => {
