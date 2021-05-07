@@ -81,8 +81,12 @@ function log(str = "") {
     const time = new Date();
 
     p.innerHTML = str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    timestamp.innerHTML = `${time.getHours().toFixed(2)}:${time.getMinutes().toFixed(2)}.${time.getSeconds().toFixed(2)}`;
+    timestamp.innerHTML = `${fillZeros(time.getHours(), 2)}:${fillZeros(time.getMinutes(), 2)}.${fillZeros(time.getSeconds(), 2)}`;
+    timestamp.classList.add("timestamp");
 
     p.appendChild(timestamp);
     logDiv.appendChild(p);
+}
+function fillZeros(num = 0, digits = 2, char = "0") {
+    return char.repeat(digits - String(num).length) + String(num);
 }
