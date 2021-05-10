@@ -48,7 +48,7 @@ ws.addEventListener("message", e => {
             break;
         }
         case "join": {
-            log(`[JOIN] ${msg.index} ("${clients[msg.index]}") ${msg.id} ("${msg.name}")`);
+            log(`[JOIN] ${msg.index} ("${clients[msg.index].username}") ${msg.id} ("${msg.name}")`);
             break;
         }
     }
@@ -87,6 +87,7 @@ function log(str = "") {
 
     p.appendChild(timestamp);
     logDiv.appendChild(p);
+    p.scrollIntoView();
 }
 function fillZeros(num = 0, digits = 2, char = "0") {
     return char.repeat(digits - String(num).length) + String(num);
