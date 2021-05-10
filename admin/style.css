@@ -30,8 +30,8 @@ tr:not(:last-child) {
     counter-reset: index;
 }
 #users td:first-child::after {
-    counter-increment: index;
     content: counter(index);
+    counter-increment: index;
 }
 
 #bottom {
