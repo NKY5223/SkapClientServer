@@ -51,6 +51,10 @@ ws.addEventListener("message", e => {
             log(`[/msg] ${msg.author}: ${msg.message}`);
             break;
         }
+        case "join": {
+            log(`[JOIN] ${msg.index} ("${clients[msg.index]}") ${msg.id} ("${msg.name}")`);
+            break;
+        }
     }
 });
 

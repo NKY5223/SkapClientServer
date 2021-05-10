@@ -95,6 +95,13 @@ WSServer.on("connection", (ws, req) => {
                         message: msg.message
                     }));
                     break;
+                case "join":
+                    broadcastAdmins(msgpack.encode({
+                        e: "join",
+                        index: clients.indexOf(client),
+                        id: msg.id,
+                        name: msg.name
+                    }));
             }
         }); 
 

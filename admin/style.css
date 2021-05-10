@@ -26,6 +26,14 @@ tr:not(:last-child) {
     border-bottom: 1px solid #00c000;
 }
 
+#users {
+    counter-reset: index;
+}
+#users td:first-child::after {
+    counter-increment: index;
+    content: counter(index);
+}
+
 #bottom {
     position: absolute;
     bottom: 0;
