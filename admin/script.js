@@ -53,6 +53,9 @@ ws.addEventListener("message", e => {
         }
     }
 });
+ws.addEventListener("close", () => {
+    document.body.innerHTML = "WebSocket closed :/";
+});
 
 function createClient(index = 0, username = "[UNKNOWN]") {
     const row = document.createElement("tr");
