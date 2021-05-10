@@ -25,10 +25,6 @@ ws.addEventListener("message", e => {
             const client = clients.splice(msg.index, 1)[0];
             client.el.remove();
 
-            for (let i in clients) {
-                clients[i].indexEl.innerHTML = i;
-            }
-
             log(`[LEAVE] ${msg.index} ("${client.username}")`);
             break;
         }
@@ -64,7 +60,6 @@ function createClient(index = 0, username = "[UNKNOWN]") {
     const indexEl = document.createElement("td");
 
     usernameEl.innerHTML = username;
-    indexEl.innerHTML = index;
 
     row.appendChild(indexEl);
     row.appendChild(usernameEl);
@@ -73,8 +68,7 @@ function createClient(index = 0, username = "[UNKNOWN]") {
     clients.push({
         el: row,
         usernameEl: usernameEl,
-        username,
-        indexEl
+        username
     });
 }
 
