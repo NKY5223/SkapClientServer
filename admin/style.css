@@ -49,6 +49,7 @@ tr:not(:last-child) {
     bottom: 0;
     width: 100%;
     max-height: 500px;
+    overflow-y: auto;
 }
 #log::-webkit-scrollbar {
     display: none;
