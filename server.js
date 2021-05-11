@@ -75,10 +75,18 @@ WSServer.on("connection", (ws, req) => {
         ws.addEventListener("message", e => {
             const msg = msgpack.decode(new Uint8Array(e.data));
             switch (msg.e) {
+                case "login":
+                    client.username = msg.username;
+                    broadcastAdmins(msgpack.encode({
+                        e: "login",
+                        username: msg.username,
+                        index: clients.indexOf(client)
+                    }));
+                    break;
                 case "username":
                     client.username = msg.username;
                     broadcastAdmins(msgpack.encode({
-                        e: "usernameUpdate",
+                        e: "username",
                         username: msg.username,
                         index: clients.indexOf(client)
                     }));
@@ -103,7 +111,7 @@ WSServer.on("connection", (ws, req) => {
                         name: msg.name
                     }));
             }
-        }); 
+        });
 
         // Bye
         ws.addEventListener("close", () => {
@@ -111,7 +119,7 @@ WSServer.on("connection", (ws, req) => {
                 e: "clientLeft",
                 index: clients.indexOf(client)
             }));
-            clients.splice(clients.indexOf(client), 1); 
+            clients.splice(clients.indexOf(client), 1);
         });
     }
 });

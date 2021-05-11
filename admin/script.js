@@ -28,12 +28,18 @@ ws.addEventListener("message", e => {
             log(`[LEAVE] ${msg.index} ("${client.username}")`);
             break;
         }
-        case "usernameUpdate": {
+        case "login": {
             const client = clients[msg.index];
 
             client.usernameEl.innerHTML = client.username = msg.username;
 
             log(`[LOGIN] ${msg.index} as ${msg.username}`);
+            break;
+        }
+        case "username": {
+            const client = clients[msg.index];
+
+            client.usernameEl.innerHTML = client.username = msg.username;
             break;
         }
         case "clients": {
