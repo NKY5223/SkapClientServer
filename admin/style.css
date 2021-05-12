@@ -34,6 +34,17 @@ tr:not(:last-child) {
     counter-increment: index;
 }
 
+input {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid #00ff00;
+    color: #00ff00;
+    font-family: Consolas, monospace;
+}
+input:focus {
+    outline: none;
+}
+
 #bottom {
     position: absolute;
     bottom: 0;

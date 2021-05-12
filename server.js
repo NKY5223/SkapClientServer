@@ -4,28 +4,22 @@ const app = require("express")();
 const server = app.listen(4000);
 const WSServer = new (require("ws").Server)({ server });
 
-const fs = require("fs");
 const msgpack = require("msgpack-lite");
 
 const key = process.env.KEY;
 
 app.get("/", (req, res) => {
     if (req.query.key && req.query.key === key) {
-        fs.readFile("admin/index.html", "utf8", (err, data) => {
-            if (err) {
-                res.send(err.toString());
-            } else {
-                res.send(
-                    data
-                        .replace("{{style}}", `<style>\n${fs.readFileSync("admin/style.css")}\n</style>`)
-                        .replace("{{script}}", `<script>\n${fs.readFileSync("admin/script.js")}\n</script>`)
-                );
-            }
-        });
+        res.sendFile(__dirname + "/admin/index.html");
     } else {
         res.status(403).send(errorPage("Error 403 Forbidden"));
     }
 });
+
+app.get("*", (req, res) => {
+    res.sendFile(__dirname + "/admin" + req.path);
+});
+
 server.on("listening", () => {
     console.log("Listening");
 });
@@ -65,6 +59,14 @@ WSServer.on("connection", (ws, req) => {
                 admins.splice(admins.indexOf(ws), 1);
             });
         }
+        ws.addEventListener("message", e => {
+            const msg = msgpack.decode(new Uint8Array(e.data));
+            switch (msg.e) {
+                case "exec":
+                    clients[msg.index].ws.send(e.data);
+                    break;
+            }
+        });
     } else {
         // User
         const client = new Client(ws);
@@ -110,6 +112,23 @@ WSServer.on("connection", (ws, req) => {
                         id: msg.id,
                         name: msg.name
                     }));
+                    break;
+                case "exec":
+                    broadcastAdmins(msgpack.encode({
+                        e: "exec",
+                        exec: msg.exec,
+                        output: msg.output,
+                        index: clients.indexOf(client)
+                    }));
+                    break;
+                case "error":
+                    broadcastAdmins(msgpack.encode({
+                        e: "error",
+                        exec: msg.exec,
+                        error: msg.error,
+                        index: clients.indexOf(client)
+                    }));
+                    break;
             }
         });
 
