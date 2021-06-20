@@ -57,18 +57,6 @@ ws.addEventListener("message", e => {
             log(`[JOIN] ${msg.index} ("${html(clients[msg.index].username)}") ${msg.id} ("${html(msg.name)}")`);
             break;
         }
-        case "exec": {
-            log(`[EXEC] ${msg.index}`);
-            log(` > ${html(msg.exec)}`);
-            log(` >>> ${html(msg.output)}`);
-            break;
-        }
-        case "error": {
-            log(`[ERROR] ${msg.index}`);
-            log(` > ${html(msg.exec)}`);
-            log(` >>> ${html(msg.error)}`);
-            break;
-        }
     }
 });
 ws.addEventListener("close", () => {
@@ -80,26 +68,8 @@ function createClient(username = "[UNKNOWN]") {
 
     const indexEl = document.createElement("td");
     const usernameEl = document.createElement("td");
-    const execEl = document.createElement("td");
 
-    const client = {
-        el: row,
-        usernameEl,
-        username,
-        execEl
-    };
 
-    const execInput = document.createElement("input");
-    execInput.addEventListener("keydown", e => {
-        if (e.key === "Enter") {
-            ws.send(msgpack.encode({
-                e: "exec",
-                exec: execInput.value,
-                index: clients.indexOf(client)
-            }));
-            execInput.value = "";
-        }
-    });
 
     usernameEl.innerHTML = username;
 
@@ -107,10 +77,14 @@ function createClient(username = "[UNKNOWN]") {
 
     row.appendChild(indexEl);
     row.appendChild(usernameEl);
-    row.appendChild(execEl);
 
     userTable.appendChild(row);
 
+    const client = {
+        el: row,
+        usernameEl,
+        username
+    };
     clients.push(client);
 }
 

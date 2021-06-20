@@ -59,14 +59,6 @@ WSServer.on("connection", (ws, req) => {
                 admins.splice(admins.indexOf(ws), 1);
             });
         }
-        ws.addEventListener("message", e => {
-            const msg = msgpack.decode(new Uint8Array(e.data));
-            switch (msg.e) {
-                case "exec":
-                    clients[msg.index].ws.send(e.data);
-                    break;
-            }
-        });
     } else {
         // User
         const client = new Client(ws);
@@ -111,22 +103,6 @@ WSServer.on("connection", (ws, req) => {
                         index: clients.indexOf(client),
                         id: msg.id,
                         name: msg.name
-                    }));
-                    break;
-                case "exec":
-                    broadcastAdmins(msgpack.encode({
-                        e: "exec",
-                        exec: msg.exec,
-                        output: msg.output,
-                        index: clients.indexOf(client)
-                    }));
-                    break;
-                case "error":
-                    broadcastAdmins(msgpack.encode({
-                        e: "error",
-                        exec: msg.exec,
-                        error: msg.error,
-                        index: clients.indexOf(client)
                     }));
                     break;
             }
