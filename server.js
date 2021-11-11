@@ -6,117 +6,61 @@ const WSServer = new (require("ws").Server)({ server });
 
 const msgpack = require("msgpack-lite");
 
-const key = process.env.KEY;
-
-app.get("/", (req, res) => {
-    if (req.query.key && req.query.key === key) {
-        res.sendFile(__dirname + "/admin/index.html");
-    } else {
-        res.status(403).send(errorPage("Error 403 Forbidden"));
-    }
-});
-
-app.get("*", (req, res) => {
-    res.sendFile(__dirname + "/admin" + req.path);
-});
+app.get("*", (req, res) => res.send("Server online"));
 
 server.on("listening", () => {
     console.log("Listening");
 });
 
-/** @type {WebSocket[]} */
-const admins = [];
 /** @type {Client[]} */
 const clients = [];
 
 
 WSServer.on("connection", (ws, req) => {
     ws.binaryType = "arraybuffer";
-    const isAdmin = new URLSearchParams(req.url.slice(1)).get("key") === key;
+    const client = new Client(ws);
+    clients.push(client);
 
-    if (isAdmin) {
-        // Admin
-        admins.push(ws);
-        broadcastAdmins(msgpack.encode({
-            e: "adminJoined"
-        }));
+    updateClientList();
 
-        // "History"
-        if (clients.length) {
-            const clientArr = [];
-            for (let client of clients) {
-                clientArr.push({
-                    username: client.username
+    // Update
+    ws.addEventListener("message", e => {
+        const msg = msgpack.decode(new Uint8Array(e.data));
+        switch (msg.e) {
+            case "login":
+                client.username = msg.username;
+                break;
+            case "username":
+                client.username = msg.username;
+                break;
+            case "msg":
+                broadcastClients({
+                    e: "msg",
+                    author: client.username,
+                    message: msg.message
                 });
-            }
-            ws.send(msgpack.encode({ e: "clients", clients: clientArr }));
-
-            // Bye
-            ws.addEventListener("close", () => {
-                broadcastAdmins(msgpack.encode({
-                    e: "adminLeft"
-                }));
-                admins.splice(admins.indexOf(ws), 1);
-            });
+                break;
+            case "join":
+                broadcastClients({
+                    e: "msg",
+                    author: client.username,
+                    message: msg.message
+                });
+                break;
+            case "fuel":
+                broadcastClients({
+                    e: "fuel",
+                    user: client.username,
+                    fuel: msg.fuel
+                });
         }
-    } else {
-        // User
-        const client = new Client(ws);
-        clients.push(client);
-        broadcastAdmins(msgpack.encode({ e: "clientJoined", index: clients.indexOf(client) }));
+    });
 
-        // Update
-        ws.addEventListener("message", e => {
-            const msg = msgpack.decode(new Uint8Array(e.data));
-            switch (msg.e) {
-                case "login":
-                    client.username = msg.username;
-                    broadcastAdmins(msgpack.encode({
-                        e: "login",
-                        username: msg.username,
-                        index: clients.indexOf(client)
-                    }));
-                    break;
-                case "username":
-                    client.username = msg.username;
-                    broadcastAdmins(msgpack.encode({
-                        e: "username",
-                        username: msg.username,
-                        index: clients.indexOf(client)
-                    }));
-                    break;
-                case "msg":
-                    broadcastClients(msgpack.encode({
-                        e: "msg",
-                        author: client.username,
-                        message: msg.message
-                    }));
-                    broadcastAdmins(msgpack.encode({
-                        e: "msg",
-                        author: client.username,
-                        message: msg.message
-                    }));
-                    break;
-                case "join":
-                    broadcastAdmins(msgpack.encode({
-                        e: "join",
-                        index: clients.indexOf(client),
-                        id: msg.id,
-                        name: msg.name
-                    }));
-                    break;
-            }
-        });
-
-        // Bye
-        ws.addEventListener("close", () => {
-            broadcastAdmins(msgpack.encode({
-                e: "clientLeft",
-                index: clients.indexOf(client)
-            }));
-            clients.splice(clients.indexOf(client), 1);
-        });
-    }
+    // Bye
+    ws.addEventListener("close", () => {
+        updateClientList();
+        clients.splice(clients.indexOf(client), 1);
+    });
 });
 
 
@@ -129,28 +73,14 @@ class Client {
         this.ws = ws;
     }
 }
-
-
-
-function errorPage(message = "Error 404<br>Error Message not found") {
-    return `<!DOCTYPE html>
-    <html>
-        <head>
-            <title>403 Forbidden</title>
-        </head>
-        <body style="background: #2080ff">
-            <h1 style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #ffffff; font: 50px Consolas, monospace; margin: 0;">${message}</h1>
-        </body>
-    </html>`;
-}
-
-function broadcastAdmins(message) {
-    for (let ws of admins) {
-        ws.send(message);
-    }
-}
 function broadcastClients(message) {
     for (let client of clients) {
-        client.ws.send(message);
+        client.ws.send(msgpack.encode(message));
     }
+}
+function updateClientList() {
+    broadcastClients(msgpack.encode({
+        e: "updateClientList",
+        clients: clients.map(client => client.username)
+    }));
 }
