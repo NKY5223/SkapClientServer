@@ -21,9 +21,13 @@ WSServer.on("connection", (ws, req) => {
     const client = new Client(ws);
     clients.push(client);
 
-    broadcastClients(msgpack.encode({
+    broadcastClients({
         e: "clientJoined",
         username: client.username
+    });
+    ws.send(msgpack.encode({
+        e: "clients",
+        clients: clients.map(client => client.username)
     }));
 
     // Update
@@ -61,10 +65,10 @@ WSServer.on("connection", (ws, req) => {
 
     // Bye
     ws.addEventListener("close", () => {
-        broadcastClients(msgpack.encode({
+        broadcastClients({
             e: "clientLeft",
             username: client.username
-        }));
+        });
         clients.splice(clients.indexOf(client), 1);
     });
 });
@@ -83,6 +87,4 @@ function broadcastClients(message) {
     for (let client of clients) {
         client.ws.send(msgpack.encode(message));
     }
-}
-function clientjoined() {
 }
