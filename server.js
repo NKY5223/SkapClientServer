@@ -21,7 +21,7 @@ WSServer.on("connection", (ws, req) => {
     const client = new Client(ws);
     clients.push(client);
 
-    broadcastClients({
+    broadcast({
         e: "clientJoined",
         username: client.username
     });
@@ -37,54 +37,87 @@ WSServer.on("connection", (ws, req) => {
             case "login":
                 if (typeof msg.username !== "string" || msg.username.length < 3 || msg.username.length > 15) {
                     clients.splice(clients.indexOf(client), 1);
-                    broadcastClients({
+                    broadcast({
                         e: "clientLeft",
-                        username: client.username
+                        user: client.username
                     });
                 }
-                client.username = msg.username;
+                broadcast({
+                    e: "clientUsername",
+                    from: client.username,
+                    to: client.username = msg.username
+                });
                 break;
             case "username":
                 if (typeof msg.username !== "string" || msg.username.length < 3 || msg.username.length > 15) {
                     clients.splice(clients.indexOf(client), 1);
-                    broadcastClients({
+                    broadcast({
                         e: "clientLeft",
-                        username: client.username
+                        user: client.username
                     });
+                    return;
                 }
-                client.username = msg.username;
+                if (msg.username === client.username) return;
+                broadcast({
+                    e: "clientUsername",
+                    from: client.username,
+                    to: client.username = msg.username
+                });
                 break;
             case "msg":
                 if (typeof msg.message !== "string") {
                     clients.splice(clients.indexOf(client), 1);
-                    broadcastClients({
+                    broadcast({
                         e: "clientLeft",
-                        username: client.username
+                        user: client.username
                     });
+                    return;
                 }
-                broadcastClients({
+                broadcast({
                     e: "msg",
                     author: client.username,
                     message: msg.message.slice(0, 200)
                 });
                 break;
             case "fuel":
-                broadcastClients({
+                if ((typeof msg.fuel !== "number") || (msg.fuel < 0) || (msg.fuel > 10)) {
+                    clients.splice(clients.indexOf(client), 1);
+                    broadcast({
+                        e: "clientLeft",
+                        user: client.username
+                    });
+                    return;
+                }
+                broadcast({
                     e: "fuel",
                     user: client.username,
                     fuel: msg.fuel
                 });
                 break;
-            case "powers":
+            case "power":
+                if ((msg.slot !== 0 && msg.slot !== 1) || (typeof msg.power !== "number") || (!Number.isInteger(msg.power)) || (msg.power < 0) || (msg.power > 11)) {
+                    clients.splice(clients.indexOf(client), 1);
+                    broadcast({
+                        e: "clientLeft",
+                        user: client.username
+                    });
+                    return;
+                }
+                broadcast({
+                    e: "power",
+                    user: client.username,
+                    slot: msg.slot,
+                    power: msg.power
+                });
                 break;
         }
     });
 
     // Bye
     ws.addEventListener("close", () => {
-        broadcastClients({
+        broadcast({
             e: "clientLeft",
-            username: client.username
+            user: client.username
         });
         clients.splice(clients.indexOf(client), 1);
     });
@@ -100,7 +133,7 @@ class Client {
         this.ws = ws;
     }
 }
-function broadcastClients(message) {
+function broadcast(message) {
     for (let client of clients) {
         client.ws.send(msgpack.encode(message));
     }
