@@ -110,6 +110,22 @@ WSServer.on("connection", (ws, req) => {
                     power: msg.power
                 });
                 break;
+            case "cooldown":
+                if ((msg.slot !== 0 && msg.slot !== 1) || (typeof msg.cooldown !== "number") || (msg.cooldown < 0) || (msg.cooldown > 1)) {
+                    clients.splice(clients.indexOf(client), 1);
+                    broadcast({
+                        e: "clientLeft",
+                        user: client.username
+                    });
+                    return;
+                }
+                broadcast({
+                    e: "cooldown",
+                    user: client.username,
+                    slot: msg.slot,
+                    cooldown: msg.cooldown
+                });
+                break;
         }
     });
 
