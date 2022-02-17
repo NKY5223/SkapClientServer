@@ -27,7 +27,7 @@ WSServer.on("connection", (ws, req) => {
     });
     ws.send(msgpack.encode({
         e: "clients",
-        clients: clients.map(client => client.username)
+        clients: clients.map(client => ({ ...client.state, username: client.username }))
     }));
 
     // Update
@@ -88,6 +88,7 @@ WSServer.on("connection", (ws, req) => {
                     });
                     return;
                 }
+                client.state.fuel = msg.fuel;
                 broadcast({
                     e: "fuel",
                     user: client.username,
@@ -103,6 +104,7 @@ WSServer.on("connection", (ws, req) => {
                     });
                     return;
                 }
+                client.state.powers[msg.slot].power = msg.power;
                 broadcast({
                     e: "power",
                     user: client.username,
@@ -119,6 +121,7 @@ WSServer.on("connection", (ws, req) => {
                     });
                     return;
                 }
+                client.state.powers[msg.slot].cooldown = msg.cooldown;
                 broadcast({
                     e: "cooldown",
                     user: client.username,
@@ -146,6 +149,19 @@ class Client {
      */
     constructor(ws) {
         this.username = "[UNKNOWN]";
+        this.state = {
+            powers: [
+                {
+                    power: null,
+                    cooldown: 0
+                },
+                {
+                    power: null,
+                    cooldown: 0
+                }
+            ],
+            fuel: 10
+        };
         this.ws = ws;
     }
 }
