@@ -129,6 +129,23 @@ WSServer.on("connection", (ws, req) => {
                     cooldown: msg.cooldown
                 });
                 break;
+            case "heat":
+                if ((msg.slot !== 0 && msg.slot !== 1) || (typeof msg.heat !== "number") || (msg.heat < 0) || (msg.heat > 1)) {
+                    clients.splice(clients.indexOf(client), 1);
+                    broadcast({
+                        e: "clientLeft",
+                        user: client.username
+                    });
+                    return;
+                }
+                client.state.powers[msg.slot].heat = msg.heat;
+                broadcast({
+                    e: "heat",
+                    user: client.username,
+                    slot: msg.slot,
+                    heat: msg.heat
+                });
+                break;
         }
     });
 
@@ -153,11 +170,13 @@ class Client {
             powers: [
                 {
                     power: null,
-                    cooldown: 0
+                    cooldown: 0,
+                    heat: 0
                 },
                 {
                     power: null,
-                    cooldown: 0
+                    cooldown: 0,
+                    heat: 0
                 }
             ],
             fuel: 10
